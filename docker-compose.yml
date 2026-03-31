@@ -1,0 +1,69 @@
+services:
+  postgresql:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRESQL_USER:-zipline}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:?POSTGRESQL_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRESQL_DB:-zipline}
+    networks:
+      - zipline-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'zipline']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zipline:
+    image: ghcr.io/diced/zipline:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRESQL_USER:-zipline}:${POSTGRESQL_PASSWORD}@postgresql:5432/${POSTGRESQL_DB:-zipline}
+    networks:
+      - zipline-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    volumes:
+      - './uploads:/zipline/uploads'
+      - './public:/zipline/public'
+      - './themes:/zipline/themes'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://0.0.0.0:3000/api/healthcheck']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    networks:
+      - zipline-network
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      zipline:
+        condition: service_healthy
+
+networks:
+  zipline-network:
+    name: zipline-network
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
