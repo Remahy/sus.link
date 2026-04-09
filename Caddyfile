@@ -19,9 +19,19 @@ sus.link {
 		file_server
 	}
 
+	@hasAuth header Authorization *
+
+	handle @hasAuth {
+		reverse_proxy zipline:3000
+	}
+
+	handle @hasAuth /api/upload {
+		reverse_proxy zipline:3000
+	}
+
 	handle /api/upload {
 		reverse_proxy zipline:3000 {
-			header_up Authorization {http.request.header.Authorization:{env.PUBLIC_AUTHORIZATION}}
+			header_up Authorization {env.PUBLIC_AUTHORIZATION}
 		}
 	}
 
