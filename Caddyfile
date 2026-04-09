@@ -20,12 +20,12 @@ sus.link {
 	}
 
 	handle {
-		reverse_proxy zipline:3000 {
-			@noAuth not header Authorization *
+		@noAuth {
+			not header Authorization *
+		}
 
-			header_up @noAuth {
-				Authorization "{$PUBLIC_AUTHORIZATION}"
-			}
+		reverse_proxy zipline:3000 {
+			header_up @noAuth Authorization "{$PUBLIC_AUTHORIZATION}"
 		}
 	}
 }
