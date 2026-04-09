@@ -44,6 +44,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-caddy
+    env_file:
+      - .env
     environment:
       PUBLIC_AUTHORIZATION: ${PUBLIC_AUTHORIZATION}
     restart: unless-stopped
