@@ -13,7 +13,7 @@ www.sus.link {
 }
 
 sus.link {
-	handle_path = / {
+	handle_path / {
 		root * /srv
 		rewrite * /index.html
 		file_server
