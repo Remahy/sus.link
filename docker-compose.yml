@@ -44,6 +44,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-caddy
+    environment:
+      PUBLIC_AUTHORIZATION: ${PUBLIC_AUTHORIZATION}
     restart: unless-stopped
     ports:
       - "80:80"
@@ -53,6 +55,7 @@ services:
       - zipline-network
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./srv:/srv
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

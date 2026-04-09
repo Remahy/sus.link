@@ -13,7 +13,19 @@ www.sus.link {
 }
 
 sus.link {
+	handle_path = / {
+		root * /srv
+		rewrite * /index.html
+		file_server
+	}
+
 	handle {
+		@noAuth not header Authorization *
+
+		header @noAuth {
+			Authorization "{$PUBLIC_AUTHORIZATION}"
+		}
+
 		reverse_proxy zipline:3000
 	}
 }
