@@ -22,7 +22,7 @@ sus.link {
 	handle {
 		@noAuth not header Authorization *
 
-		header @noAuth {
+		header_up @noAuth {
 			Authorization "{$PUBLIC_AUTHORIZATION}"
 		}
 
